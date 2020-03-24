@@ -3,6 +3,7 @@ const express = require('express');
 const helmet = require('helmet');
 const {PORT} = require('./constants');
 const db_module = require('./test.js')
+const graphqlHTTP = require('express-graphql');
 const app = express();
 
 app.use(require('body-parser').json());
@@ -58,6 +59,23 @@ app.post('/movies/:id', function (req, response) {
 	response.send(result);
 })
 });
+
+/*
+app.post(
+  '/graphql',
+  graphqlHTTP({
+    schema: MyGraphQLSchema,
+    graphiql: false,
+  }),
+);
+
+app.get(
+  '/graphql',
+  graphqlHTTP({
+    schema: MyGraphQLSchema,
+    graphiql: true,
+  }),
+);*/
 
 
 app.listen(PORT);
