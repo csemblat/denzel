@@ -18,7 +18,7 @@ async function start (actor = DENZEL_IMDB_ID, metascore = METASCORE) { //modifie
   }
 }
 
-function random_integer(ceiling)
+function random_integer(ceiling) //gives a random integer between 0 and ceiling
 {
 	var rand = Math.floor((Math.random() * ceiling));
 	return rand
@@ -41,7 +41,6 @@ async function insert_actor_movies(actor){  //populates mongo db with movies tha
 	}
     await client.connect();
 	const result = await client.db("movies").collection("inserts").insertMany(mov_list);
-	console.log("inserted : " + result.insertedCount);
 	return { "inserted" :  result.insertedCount};
 	} catch (e) {
     console.error(e);
@@ -52,7 +51,7 @@ async function insert_actor_movies(actor){  //populates mongo db with movies tha
 
 }
 
-async function find_mustwatch_movies(){ //gives a random must-watch movie
+async function find_mustwatch_movies(){ //gives a random must-watch movie from the mongodb
 	const client = new MongoClient(mongo_url ,  { useNewUrlParser: true, useUnifiedTopology: true });
 	try {
     await client.connect();
@@ -86,13 +85,13 @@ async function find_specific_movies(id){ //gives a specific movie
     }
 }
 
-async function search_movies(limit, min_metascore){ //search a number of movies (limit being the number of movies) with a metascore greater or equal to
+async function search_movies(limit, min_metascore){ //search a number of movies (limit being the number of movies) with a metascore greater or equal to min_metascore
 	const client = new MongoClient(mongo_url ,  { useNewUrlParser: true, useUnifiedTopology: true });
 	try {
     await client.connect();
 	const cursor = client.db("movies").collection("inserts").find({"metascore" : {$gte : min_metascore}}).sort({"metascore": -1}).limit( limit );
 	var result = await cursor.toArray();
-	console.log("result : " + result[0].metascore);
+	//console.log("result : " + result[0].metascore);
 	return result;
 	} catch (e) {
     console.error(e);
@@ -102,12 +101,12 @@ async function search_movies(limit, min_metascore){ //search a number of movies 
     }
 }
 
-async function post_review(id, review, review_date){
+async function post_review(id, review, review_date){ //saves a review into the db
 	const client = new MongoClient(mongo_url ,  { useNewUrlParser: true, useUnifiedTopology: true });
 	try {
     await client.connect();
 	var result = await  client.db("movies").collection("inserts").updateOne({ "id" : id }, { $set: {"review" : review , "review_date" : review_date}}, {upsert: true} );
-	console.log(result);
+	//console.log(result);
 	return result;
 	} catch (e) {
     console.error(e);
@@ -118,5 +117,5 @@ async function post_review(id, review, review_date){
 }
 module.exports = { insert_actor_movies , find_mustwatch_movies , find_specific_movies, search_movies , post_review}
 //start(actor = DENZEL_IMDB_ID, METASCORE);
-search_movies(2, 10);
+//search_movies(2, 10);
 //insert_actor_movies(DENZEL_IMDB_ID);
