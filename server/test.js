@@ -91,7 +91,6 @@ async function search_movies(limit, min_metascore){ //search a number of movies 
     await client.connect();
 	const cursor = client.db("movies").collection("inserts").find({"metascore" : {$gte : min_metascore}}).sort({"metascore": -1}).limit( limit );
 	var result = await cursor.toArray();
-	//console.log("result : " + result[0].metascore);
 	return result;
 	} catch (e) {
     console.error(e);
@@ -117,5 +116,5 @@ async function post_review(id, review, review_date){ //saves a review into the d
 }
 module.exports = { insert_actor_movies , find_mustwatch_movies , find_specific_movies, search_movies , post_review}
 //start(actor = DENZEL_IMDB_ID, METASCORE);
-//search_movies(2, 10);
+//search_movies(2, 1);
 //insert_actor_movies(DENZEL_IMDB_ID);

@@ -6,6 +6,7 @@ const db_module = require('./test.js') //mongodb handler
 const graphqlHTTP = require('express-graphql');
 const app = express(); //restful server
 
+/*
 //graphql imports
 var { graphql, buildSchema } = require('graphql');
 
@@ -22,6 +23,17 @@ var root = {
     return null;
   },
 };
+*/
+async function search(req, response) { //search function
+	var lim = 2;
+	var min_meta = 1;
+	min_meta = parseInt(req.query.metascore);
+	lim = parseInt(req.query.limit);
+	db_module.search_movies(lim, min_meta).then(function(result){ //searches the mongo db for "lim" movies with metascore over "min_meta"
+	response.send(result);
+	})
+	
+}
 
 app.use(require('body-parser').json());
 app.use(cors());
@@ -35,7 +47,8 @@ app.get('/movies/populate/:id', (req, response) => { //sends back the number of 
 	const actor = req.params.id;
 	db_module.insert_actor_movies(actor).then(function(result){
 	response.send(result);
-})
+	})
+	
 });
 
 app.get('/movies', (req, response) => { //returns a random must watch movie
@@ -44,22 +57,21 @@ app.get('/movies', (req, response) => { //returns a random must watch movie
 })
 });
 
-app.get('/movies/:id', (req, response) => { //returns a movie with a specific id
+app.get('/movies/:id', async (req, response) => { //returns a movie with a specific id
 	const mov_id = req.params.id;
+	if(mov_id == "search"){ //the movies/search request seems to be going through movies/id 
+	await search(req, response);	
+	console.log("search request received")
+	}
+	else{
 	db_module.find_specific_movies(mov_id).then(function(result){
 	response.send(result);
-})
+	})
+	}
 });
 
-app.get('/movies/search', (req, response) => { //doesn't work though the underlying db_module function does
-	//console.log(req.query); //debug line
-	var lim = 2;
-	var min_meta = 1;
-	min_meta = req.query.metascore;
-	lim = req.query.limit;
-	db_module.search_movies(lim, min_meta).then(function(result){
-	response.send(result);
-})
+app.get('/movies/search', async (req, response) => { //doesn't work though the underlying db_module function does
+	await search(req, response);
 });
 
 
@@ -71,6 +83,8 @@ app.post('/movies/:id', function (req, response) { //saves a review into the dat
 	response.send(result);
 })
 });
+
+
 
 //graphql endpoints
 /*
@@ -98,4 +112,3 @@ app.listen(PORT);
 console.log(`📡 Running on port ${PORT}`);
 
 module.exports = app;
-
